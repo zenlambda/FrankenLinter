@@ -136,7 +136,11 @@ class PylSet(object):
         python_bin = cls.get_or('python_bin', 'python')
         python_path = cls.get_or('python_path', [])
         python_path = PATH_SEPERATOR.join([str(p) for p in python_path])
+        project_working_dir = cls.get_or('project_working_dir', False)
         working_dir = cls.get_or('working_dir', None)
+        if (not working_dir) and project_working_dir:
+            project_file = sublime.active_window().project_file_name()
+            working_dir = os.path.dirname(project_file)
         pylint_path = cls.get_or('pylint_path', None)
         pylint_rc = cls.get_or('pylint_rc', None) or ""
         ignore = [t.lower() for t in cls.get_or('ignore', [])]
@@ -482,6 +486,8 @@ class PylintThread(threading.Thread):
         command.extend(options)
 
         self.set_path()
+
+        speak("working_dir: ", str(self.working_dir))
 
         speak("Running command with Pylint", str(PYLINT_VERSION))
         speak(" ".join(command))
